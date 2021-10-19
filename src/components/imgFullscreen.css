@@ -1,0 +1,13 @@
+.img-fullscreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.img-fullscreen img {
+    height: 100vh;
+    width: auto;
+}
+.img-fullscreen img:hover {
+    cursor: zoom-out;
+}
