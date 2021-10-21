@@ -44,6 +44,49 @@ const ColorBoxesPage = () => {
         });
     }
 
+    function hex2rgb(hex) {
+        var validHEXInput = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(
+            hex
+        );
+        if (!validHEXInput) {
+            return false;
+        }
+        var output = {
+            r: parseInt(validHEXInput[1], 16),
+            g: parseInt(validHEXInput[2], 16),
+            b: parseInt(validHEXInput[3], 16),
+        };
+        return output;
+    }
+
+    function luminance({ r, g, b }) {
+        var a = [r, g, b].map(function (v) {
+            v /= 255;
+            return v <= 0.03928
+                ? v / 12.92
+                : Math.pow((v + 0.055) / 1.055, 2.4);
+        });
+        return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+    }
+
+    function sortColorByLightness() {
+        const stateCpy = cloneDeep(boxData);
+        for (let index = 0; index < stateCpy.length; index++) {
+            for (let index2 = index + 1; index2 < stateCpy.length; index2++) {
+                if (
+                    luminance(hex2rgb(stateCpy[index].color)) >
+                    luminance(hex2rgb(stateCpy[index2].color))
+                ) {
+                    const a = stateCpy[index];
+                    const b = stateCpy[index2];
+                    stateCpy[index] = b;
+                    stateCpy[index2] = a;
+                }
+            }
+        }
+        setBoxData(stateCpy);
+    }
+
     const ColorBoxes = boxData.map((box, index) => (
         <ColorBox
             onSendColor={setBackgroundColor}
@@ -61,6 +104,7 @@ const ColorBoxesPage = () => {
 
     return (
         <div>
+            <button onClick={() => sortColorByLightness()}>Sort color</button>
             <button onClick={deleteImgData}>Delete local storage :)</button>
             <button onClick={() => reverseColorBoxes()}>Reverse</button>
             <div
