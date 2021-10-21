@@ -1,22 +1,37 @@
-import React, { useState } from 'react';
+import React from 'react';
+import getRandomColor from '../../utils/getRandomColor';
 import './colorBox.css';
 
-const ColorBox = ({ text, onSendColor, onAddClick }) => {
-    const [randomColor, setRandomColor] = useState(getRandomColor);
-
-    function getRandomColor() {
-        return '#' + Math.floor(Math.random() * 16777215).toString(16);
-    }
-
+const ColorBox = ({
+    text,
+    onSendColor,
+    onAddClick,
+    color = '#fff',
+    index,
+    onColorChange,
+}) => {
+    const changeColor = () => {
+        const newColor = getRandomColor();
+        onColorChange(newColor, index);
+    };
     return (
         <div
-            onClick={() => setRandomColor(getRandomColor)}
+            onClick={changeColor}
+            onDoubleClick={() => onSendColor(color)}
             className='box'
-            style={{ backgroundColor: randomColor }}
+            style={{ backgroundColor: color }}
         >
             <p className='unselectable'>{text}</p>
-            <button onClick={() => onSendColor(randomColor)}>Velg farge</button>
-            <button onClick={() => onAddClick()}>Ny fargeboks</button>
+            <button
+                className='unselectable'
+                tabIndex={1}
+                onClick={(event) => {
+                    event.stopPropagation();
+                    onAddClick();
+                }}
+            >
+                Ny fargeboks
+            </button>
         </div>
     );
 };

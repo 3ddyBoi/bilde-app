@@ -1,38 +1,68 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import getRandomColor from '../utils/getRandomColor';
 import ColorBox from './ColorBox/ColorBox';
+import { cloneDeep } from 'lodash';
 import './colorBoxesPage.css';
+
+const defaultBoxData = [{ name: 'box1', color: getRandomColor() }];
 
 const ColorBoxesPage = () => {
     const [backgroundColor, setBackgroundColor] = useState('#eeeeee');
-    // const defaultBoxData = ['box1', 'box2', 'box3', 'box4', 'box5'];
 
-    const [boxData, setBoxData] = useState([
-        'box1',
-        'box2',
-        'box3',
-        'box4',
-        'box5',
-    ]);
+    const [boxData, setBoxData] = useState([]);
 
     function addNewBox() {
-        setBoxData((prevData) => [...prevData, `box${boxData.length + 1}`]);
+        setBoxData((prevData) => {
+            return [
+                ...prevData,
+                { name: `box${boxData.length + 1}`, color: getRandomColor() },
+            ];
+        });
     }
 
     useEffect(() => {
-        const boxDataRes = JSON.parse(localStorage.getItem('boxData'));
+        const boxDataRes =
+            JSON.parse(localStorage.getItem('boxData')) || defaultBoxData;
+        setBoxData(boxDataRes);
     }, []);
 
-    const ColorBoxes = boxData.map((arrayItem, index) => (
+    useEffect(() => {
+        localStorage.setItem('boxData', JSON.stringify(boxData));
+    }, [boxData]);
+
+    function handleColorChange(newColor, boxIndex) {
+        setBoxData((prevBoxData) => {
+            const stateCpy = cloneDeep(prevBoxData);
+            stateCpy[boxIndex].color = newColor;
+            return [...stateCpy];
+        });
+    }
+
+    function reverseColorBoxes() {
+        setBoxData((prevBoxData) => {
+            return [...prevBoxData].reverse();
+        });
+    }
+
+    const ColorBoxes = boxData.map((box, index) => (
         <ColorBox
             onSendColor={setBackgroundColor}
             onAddClick={addNewBox}
+            color={box.color}
             key={index}
-            text={arrayItem}
+            index={index}
+            text={box.name}
+            onColorChange={handleColorChange}
         />
     ));
+    function deleteImgData() {
+        localStorage.removeItem('boxData');
+    }
 
     return (
         <div>
+            <button onClick={deleteImgData}>Delete local storage :)</button>
+            <button onClick={() => reverseColorBoxes()}>Reverse</button>
             <div
                 className='container'
                 style={{ backgroundColor: backgroundColor }}
