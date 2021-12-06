@@ -7,6 +7,7 @@ function App() {
     return (
         <div>
             <ColorBoxesPage />
+            <h1>test</h1>
         </div>
     );
 }
